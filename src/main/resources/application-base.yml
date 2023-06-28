@@ -1,0 +1,29 @@
+server:
+  port: 8088
+mysql:
+  ip: 127.0.0.1
+  port: 3306
+  db: luoan-forum-service-db
+  username: root
+  password: 331520
+token:
+  default_expire_days: 5
+  default_renewal_days: 2
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: 331520
+jwt:
+  secret: 123456789
+qq:
+  name-api: https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?uins=%s
+  avatar-api: https://q2.qlogo.cn/headimg_dl?dst_uin=%s&spec=640
+  callback-charset: GB2312
+
+ip-address-api: https://sp1.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?query=%s&resource_id=5809
+resource:
+  store-path: C:/Users/17561/IdeaProjects/DynamicWebProject/src/main/resource/static
+  prefix: http://localhost:8080/resources
+  file-path: file:C:/Users/17561/IdeaProjects/DynamicWebProject/src/main/resource/static/
+
+default-charset: UTF-8
