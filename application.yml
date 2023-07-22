@@ -1,0 +1,78 @@
+server:
+  port: ${server-port}
+#logging:
+#  level:
+#    org.springframework.web: INFO
+profile-active: development #运行的环境 development production test
+profile-group: luoanforum
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+spring:
+  profiles:
+    active: ${profile-active}
+  application:
+    name: ${server-name}
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      username: nacos
+      password: nacos
+      discovery: # 服务发现
+        namespace: ${profile-active}
+        group: ${profile-group}
+      config: # 配置中心
+        namespace: ${profile-active}
+        group: ${profile-group}
+        file-extension: yaml # 配置文件扩展名
+        extend-configs:
+          - data-id: luoanforum-oauth
+            refresh: true
+        refresh-enabled: true
+        #refreshable-dataids: ${server-name}.yaml # 配置文件名
+        #配置文件的优先级（优先级大的会覆盖优先级小的，并且形成互补）
+        #profile > 默认配置文件 > extend-configs > shared-configs (下标越大优先级越大)
+    sentinel:
+      transport:
+        enable: true
+        eager: true
+        dashboard: localhost:9999
+
+  #        username: sentinel
+  #        password: sentinel
+  config:
+    import:
+      - optional:nacos:luoanforum-common
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${datasource-url}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
+    username: ${datasource-username}
+    password: ${datasource-password}
+    hikari:
+      minimum-idle: 3
+      maximum-pool-size: 10
+      max-lifetime: 30000   #不能小于30秒，否则默认回到1800秒
+      connection-test-query: SELECT 1
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  data:
+    redis:
+      url: redis://${redis-url}
+      database: 0
+      password: ${redis-password}
+      timeout: 10000
+      jedis:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+feign:
+  sentinel:
+    enabled: true
