@@ -1,0 +1,20 @@
+luoanforum:
+  server:
+    name: luoanforum-user
+    port: 9100
+  nacos:
+    server-addr: localhost:8848
+    username: nacos
+    password: nacos
+    space: development
+    group: luoanforum
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    server-addr: localhost:3306/luoanforum_user
+    params: useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+  redis:
+    server-addr: localhost:6379
+    password: 123456
+    database: 0

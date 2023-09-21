@@ -1,0 +1,116 @@
+server:
+  port: ${server-port}
+  servlet:
+    context-path: /
+profile-active: development #运行的环境 development production test
+profile-group: luoanforum
+spring:
+  profiles:
+    active: ${profile-active}
+
+  application:
+    name: ${server-name}
+
+  security:
+    oauth2:
+      client:
+        provider:
+          test-provider1:
+            issuer-uri: http://192.168.1.125:9000
+        registration:
+          oidc-client:
+            client-id: oidc-client
+            client-secret: secret
+            client-name: 测试客户端
+            provider: test-provider1
+            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - profile
+              - all
+
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      username: nacos
+      password: nacos
+      discovery: # 服务发现
+        namespace: ${profile-active}
+        group: ${profile-group}
+      config: # 配置中心
+        namespace: ${profile-active}
+        group: ${profile-group}
+        file-extension: yaml # 配置文件扩展名
+        extension-configs:
+          - data-id: luoanforum-oauth
+            refresh: true
+        refresh-enabled: true
+        #refreshable-dataids: ${server-name}.yaml # 配置文件名
+        #配置文件的优先级（优先级大的会覆盖优先级小的，并且形成互补）
+        #profile > 默认配置文件 > extend-configs > shared-configs (下标越大优先级越大)
+    sentinel:
+      enabled: true
+      eager: true
+      transport:
+        dashboard: localhost:9999
+      web-context-unify: false
+      datasource:
+        flow-rule:
+          nacos:
+            server-addr: localhost:8848
+            username: nacos
+            password: nacos
+            namespace: ${profile-active}
+            group-id: ${profile-group}
+            data-id: flow-rule
+            rule-type: flow
+    gateway:
+      routes:
+        - id: luoanforum-oauth
+          uri: lb://luoanforum-oauth
+          predicates:
+            - Path=/oauth/**
+          filters:
+            - StripPrefix=1
+            - PrefixPath=/ # 重定向添加前缀 context-path
+      globalcors:
+        cors-configurations:
+          '[/**]': # 允许跨域的路径
+            allowedOrigins: # 允许跨域的源
+              - '*'
+            allowedMethods: # 允许跨域的方法
+              - '*'
+            allowedHeaders: # 允许跨域的请求头
+              - '*'
+            allowCredentials: true # 是否允许证书 不再默认开启
+            maxAge: 1800 # 预检间隔时间
+
+  config:
+    import:
+      - optional:nacos:luoanforum-common
+
+feign:
+  sentinel:
+    enabled: true
+
+seata:
+  registry:
+    type: nacos
+    nacos:
+      server-addr: localhost:8848
+      application: seata-server
+      username: nacos
+      password: nacos
+      namespace: seata
+      group: luoanforum
+  config:
+    type: nacos
+    nacos:
+      server-addr: localhost:8848
+      username: nacos
+      password: nacos
+      namespace: seata
+      group: luoanforum
+      data-id: luoanforum.seataClient.properties
+  application-id: default_tx_group

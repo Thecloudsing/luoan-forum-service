@@ -8,16 +8,17 @@
     <name>cloud-luoanforum</name>
     <description>cloud-luoanforum</description>
     <modules>
-        <module>luoanforum-oauth</module>
         <module>luoanforum-message</module>
         <module>luoanforum-common</module>
+        <module>luoanforum-user</module>
+        <module>luoanforum-gateway</module>
     </modules>
     <packaging>pom</packaging>
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <luoanforum-common.version>0.0.1-SNAPSHOT</luoanforum-common.version>
+        <luoanforum.version>0.0.1-SNAPSHOT</luoanforum.version>
         <spring-boot.version>3.0.2</spring-boot.version>
         <spring-cloud.version>2022.0.0</spring-cloud.version>
         <spring-cloud-alibaba.version>2022.0.0.0-RC2</spring-cloud-alibaba.version>
@@ -28,13 +29,10 @@
         <jsoup.version>1.15.3</jsoup.version>
         <mybatis-plus-boot-starter.version>3.5.3.1</mybatis-plus-boot-starter.version>
         <mysql-connector.version>8.0.31</mysql-connector.version>
+        <zxing.version>3.3.3</zxing.version>
+        <jjwt.version>0.9.1</jjwt.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>com.luoanforum</groupId>
-            <artifactId>luoanforum-common</artifactId>
-            <version>${luoanforum-common.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -72,11 +70,11 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-boot-starter</artifactId>
-            <version>${redisson.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.redisson</groupId>-->
+<!--            <artifactId>redisson-spring-boot-starter</artifactId>-->
+<!--            <version>${redisson.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -84,52 +82,67 @@
             <version>${lombok.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-            <version>${caffeine.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.github.ben-manes.caffeine</groupId>-->
+<!--            <artifactId>caffeine</artifactId>-->
+<!--            <version>${caffeine.version}</version>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.jsoup</groupId>-->
+<!--            <artifactId>jsoup</artifactId>-->
+<!--            <version>${jsoup.version}</version>-->
+<!--        </dependency>-->
 
-        <!-- MyBatis Plus -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>${mybatis-plus-boot-starter.version}</version>
-        </dependency>
-        <!--Mysql数据库驱动-->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql-connector.version}</version>
-        </dependency>
+<!--        &lt;!&ndash; MyBatis Plus &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.baomidou</groupId>-->
+<!--            <artifactId>mybatis-plus-boot-starter</artifactId>-->
+<!--            <version>${mybatis-plus-boot-starter.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.baomidou</groupId>-->
+<!--            <artifactId>mybatis-plus-generator</artifactId>-->
+<!--            <version>${mybatis-plus-boot-starter.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.velocity</groupId>-->
+<!--            <artifactId>velocity-engine-core</artifactId>-->
+<!--            <version>2.0</version>-->
+<!--        </dependency>-->
 
+<!--        &lt;!&ndash;Mysql数据库驱动&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>mysql</groupId>-->
+<!--            <artifactId>mysql-connector-java</artifactId>-->
+<!--            <version>${mysql-connector.version}</version>-->
+<!--        </dependency>-->
+
+        <!--使用Swagger2-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
 
         <!--    nacos 服务注册发现    -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
+
         <!--    nacos config配置中心 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
         <!--    openfeign 远程调用   -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
-        <!--    gateway 网关   -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-starter-gateway</artifactId>-->
-<!--        </dependency>-->
+
         <!--    sentinel 限流熔断降级   -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -139,6 +152,38 @@
 <!--            <groupId>com.alibaba.csp</groupId>-->
 <!--            <artifactId>sentinel-core</artifactId>-->
 <!--        </dependency>-->
+
+        <!--   sentinel 配置文件持久化     -->
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-nacos</artifactId>
+        </dependency>
+
+        <!--   seata 分布式事务  -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+        </dependency>
+
+        <!--   oauth 验证       -->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.security.oauth.boot</groupId>-->
+<!--            <artifactId>spring-security-oauth2-autoconfigure</artifactId>-->
+<!--            <version>2.5.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.security</groupId>-->
+<!--            <artifactId>spring-security-oauth2-authorization-server</artifactId>-->
+<!--            <version>1.1.1</version>-->
+<!--        </dependency>-->
+
+
+        <dependency>
+            <groupId>com.luoanforum</groupId>
+            <artifactId>luoanforum-common</artifactId>
+            <version>${luoanforum.version}</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>

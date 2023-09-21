@@ -108,11 +108,3 @@ seata:
       group: ${profile-group}
       data-id: luoanforum.seataClient.properties
 
-luoanforum:
-  nacos:
-    server-addr: localhost:8848
-    username: nacos
-    password: nacos
-    space: development
-    group: luoanforum
-
